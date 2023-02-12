@@ -9,36 +9,135 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.calculatorfr.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(){
 
     private lateinit var binding : ActivityMainBinding
+    private lateinit var tvInput : TextView
     private var numbers = arrayListOf<Double>()
-    private var operations = arrayListOf<Char>()
+    private var operations = arrayListOf<String>()
     private var numberSting = ""
     private var lastNumeric = false
     private var lastDot = false
+    private var lastOperation = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        tvInput = binding.tvInput
+
+        //numbers
+        binding.btnZero.setOnClickListener{
+            if (tvInput.text.isNotEmpty())
+                onDigit(binding.btnZero)
+        }
+        binding.btnOne.setOnClickListener{
+            onDigit(binding.btnOne)
+        }
+        binding.btnTwo.setOnClickListener{
+            onDigit(binding.btnTwo)
+        }
+        binding.btnTree.setOnClickListener{
+            onDigit(binding.btnTree)
+        }
+        binding.btnFour.setOnClickListener {
+            onDigit(binding.btnFour)
+        }
+        binding.btnFive.setOnClickListener{
+            onDigit(binding.btnFive)
+        }
+        binding.btnSix.setOnClickListener{
+            onDigit(binding.btnSix)
+        }
+        binding.btnSeven.setOnClickListener{
+            onDigit(binding.btnSeven)
+        }
+        binding.btnEight.setOnClickListener{
+            onDigit(binding.btnEight)
+        }
+        binding.btnNine.setOnClickListener{
+            onDigit(binding.btnNine)
+        }
+
+        //operations
+        binding.btnPlus.setOnClickListener{
+            onOperator(binding.btnPlus)
+        }
+        binding.btnMinus.setOnClickListener{
+            onOperator(binding.btnMinus)
+        }
+        binding.btnMultiplication.setOnClickListener{
+            onOperator(binding.btnMultiplication)
+        }
+        binding.btnDivision.setOnClickListener{
+            onOperator(binding.btnDivision)
+        }
+
+        //calculation
+        binding.btnEqual.setOnClickListener{
+            if (lastNumeric){
+                var tvValue = tvInput.text.toString()
+                var prefix = ""
+
+                try {
+                    if (tvValue.startsWith("-")){
+                        prefix = "-"
+                        tvValue = tvValue.substring(1)
+                    }
+
+
+
+
+                }catch (e:ArithmeticException){
+                    e.printStackTrace()
+                }
+            }
+
+        }
+
+        //Extras
+        binding.btnDecimal.setOnClickListener{
+            onDecimalPoint()
+        }
+        binding.btnBracket.setOnClickListener{
+
+        }
+        binding.btnClear.setOnClickListener{
+            onClear()
+        }
+        binding.btnDeleteLast.setOnClickListener{
+
+        }
+        binding.btnNegate.setOnClickListener{
+
+        }
+
+
     }
 
-    fun onDigit(view:View){
-        val tvInput = findViewById<TextView>(R.id.tvInput)
-        tvInput.append((view as Button).text)
+    private fun onDigit(number : Button){
+        tvInput.append(number.text)
+        numberSting += number.text
         lastNumeric = true
+        lastOperation = false
+
+        Log.e("numberString", numberSting)
+        Log.e("numbers","$numbers")
+        Log.e("operations","$operations")
     }
 
-    fun onClear(view: View){
-        val tvInput = findViewById<TextView>(R.id.tvInput)
+    private fun onClear(){
         tvInput.text = ""
+        numberSting = ""
+        numbers.clear()
+        operations.clear()
         lastDot = false
         lastNumeric = false
+        lastOperation = false
     }
 
-    fun onDecimalPoint(view: View){
-        val tvInput = findViewById<TextView>(R.id.tvInput)
+    private fun onDecimalPoint(){
         if(lastNumeric && !lastDot){
             tvInput.append(".")
             lastDot = true
@@ -87,14 +186,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    fun onOperator(view: View){
-        val tvInput = findViewById<TextView>(R.id.tvInput)
-        if (lastNumeric && !isOperatorAdded(tvInput.text.toString())){
-            tvInput.append((view as Button).text)
+    private fun onOperator(operation: Button){
+        if (lastNumeric && !lastOperation){
+            tvInput.append(operation.text)
+            operations.add(operation.text.toString())
+            numbers.add(numberSting.toDouble())
+            numberSting = ""
             lastNumeric = false
             lastDot = false
+            lastOperation = true
+
+            Log.e("numberString", numberSting)
+            Log.e("numbers","$numbers")
+            Log.e("operations","$operations")
         }
     }
+
 
     private fun removeZeroAfterDot(result:String):String{
         return if (result.endsWith(".0"))
@@ -111,125 +218,4 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    override fun onClick(view: View?) {
-        val tvInput = binding.tvInput
-        when(view?.id){
-            binding.btnZero.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnOne.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnTwo.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnTree.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnFour.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnFive.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnSix.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnSeven.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnEight.id->{
-            tvInput.append((view as Button).text)
-            lastNumeric = true
-            }
-            binding.btnNine.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-            binding.btnPlus.id->{
-                if (lastNumeric && !isOperatorAdded(tvInput.text.toString())){
-                    tvInput.append((view as Button).text)
-                    operations.add('+')
-                    lastNumeric = false
-                    lastDot = false
-                }
-            }
-            binding.btnMinus.id->{
-                if (lastNumeric && !isOperatorAdded(tvInput.text.toString())){
-                    tvInput.append((view as Button).text)
-                    operations.add('-')
-                    lastNumeric = false
-                    lastDot = false
-                }
-            }
-            binding.btnMultiplication.id->{
-                if (lastNumeric && !isOperatorAdded(tvInput.text.toString())){
-                    tvInput.append((view as Button).text)
-                    operations.add('x')
-                    lastNumeric = false
-                    lastDot = false
-                }
-            }
-            binding.btnDivision.id->{
-                if (lastNumeric && !isOperatorAdded(tvInput.text.toString())){
-                    tvInput.append((view as Button).text)
-                    operations.add('/')
-                    lastNumeric = false
-                    lastDot = false
-                }
-            }
-            binding.btnDecimal.id->{
-                if(lastNumeric && !lastDot){
-                    tvInput.append(".")
-                    lastDot = true
-                    lastNumeric = false
-                }
-            }
-            binding.btnBracket.id->{
-
-            }
-            binding.btnClear.id->{
-                tvInput.text = ""
-                lastDot = false
-                lastNumeric = false
-            }
-            binding.btnDeleteLast.id->{
-
-            }
-            binding.btnEqual.id->{
-                if (lastNumeric){
-                    var tvValue = tvInput.text.toString()
-                    var prefix = ""
-
-                    try {
-                        if (tvValue.startsWith("-")){
-                            prefix = "-"
-                            tvValue = tvValue.substring(1)
-                        }
-
-
-
-
-                    }catch (e:ArithmeticException){
-                        e.printStackTrace()
-                    }
-                }
-
-            }
-            binding.btnNegate.id->{
-                tvInput.append((view as Button).text)
-                lastNumeric = true
-            }
-        }
-        Log.e("numbers","$numbers")
-        Log.e("operations","$operations")
-    }
 }
