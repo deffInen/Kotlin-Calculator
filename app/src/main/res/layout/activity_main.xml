@@ -44,7 +44,7 @@
             android:layout_marginHorizontal="2dp"/>
 
         <Button
-            android:id="@+id/BtnNegate"
+            android:id="@+id/btnNegate"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
