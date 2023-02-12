@@ -76,24 +76,7 @@ class MainActivity : AppCompatActivity(){
 
         //calculation
         binding.btnEqual.setOnClickListener{
-            if (lastNumeric){
-                var tvValue = tvInput.text.toString()
-                var prefix = ""
-
-                try {
-                    if (tvValue.startsWith("-")){
-                        prefix = "-"
-                        tvValue = tvValue.substring(1)
-                    }
-
-
-
-
-                }catch (e:ArithmeticException){
-                    e.printStackTrace()
-                }
-            }
-
+            onEqual()
         }
 
         //Extras
@@ -107,13 +90,28 @@ class MainActivity : AppCompatActivity(){
             onClear()
         }
         binding.btnDeleteLast.setOnClickListener{
-
+            onDeleteLast()
         }
         binding.btnNegate.setOnClickListener{
 
         }
 
+    }
 
+    private fun onDeleteLast(){
+        val input = tvInput.text.toString().substring(0 until tvInput.text.toString().length-1)
+        tvInput.text = input
+        if(lastDot && !lastNumeric)
+            lastDot = false
+        if (lastNumeric)
+            lastNumeric = false
+        if (lastOperation)
+            lastOperation = false
+
+
+        Log.e("lastNumeric", "$lastNumeric")
+        Log.e("lastOperation","$lastOperation")
+        Log.e("lastDot","$lastDot")
     }
 
     private fun onDigit(number : Button){
@@ -121,10 +119,6 @@ class MainActivity : AppCompatActivity(){
         numberSting += number.text
         lastNumeric = true
         lastOperation = false
-
-        Log.e("numberString", numberSting)
-        Log.e("numbers","$numbers")
-        Log.e("operations","$operations")
     }
 
     private fun onClear(){
@@ -140,15 +134,17 @@ class MainActivity : AppCompatActivity(){
     private fun onDecimalPoint(){
         if(lastNumeric && !lastDot){
             tvInput.append(".")
+            numberSting += "."
             lastDot = true
             lastNumeric = false
         }
     }
 
-    fun onEqual(view:View){
+    private fun onEqual(){
         if (lastNumeric){
-            val tvInput = findViewById<TextView>(R.id.tvInput)
+            numbers.add(numberSting.toDouble())
             var tvValue = tvInput.text.toString()
+            var valueFinal : Double = 0.0
             var prefix = ""
 
             try {
@@ -158,33 +154,69 @@ class MainActivity : AppCompatActivity(){
                     tvValue = tvValue.substring(1)
                 }
 
-                val operations = "+-/*"
-
-                for (operation in operations){
-                    if (tvValue.contains(operation)){
-                        val splitValue = tvValue.split(operation)
-
-                        var one = splitValue[0]
-                        var two = splitValue[1]
-
-                        if (prefix.isNotEmpty()){
-                            one = prefix + one
+                while (operations.contains("/") || operations.contains("*")){
+                    for (index in 0 until operations.size){
+                        if (operations[index] == "/" || operations[index] == "*"){
+                            when(operations[index]){
+                                "/" -> {
+                                    valueFinal = numbers[index] / numbers[index+1]
+                                    numbers[index] = valueFinal
+                                    if (index < operations.size)
+                                        numbers.removeAt(index+1)
+                                    operations.removeAt(index)
+                                    Log.e("numbers", numbers.toString())
+                                }
+                                "*" -> {
+                                    valueFinal = numbers[index] * numbers[index+1]
+                                    numbers[index] = valueFinal
+                                    if (index < operations.size)
+                                        numbers.removeAt(index+1)
+                                    operations.removeAt(index)
+                                    Log.e("numbers", numbers.toString())
+                                }
+                            }
+                            break
                         }
-                        when(operation){
-                            '-' -> tvInput.text = removeZeroAfterDot((one.toDouble() - two.toDouble()).toString())
-                            '+' -> tvInput.text = removeZeroAfterDot((one.toDouble() + two.toDouble()).toString())
-                            '/' -> tvInput.text = removeZeroAfterDot((one.toDouble() / two.toDouble()).toString())
-                            '*' -> tvInput.text = removeZeroAfterDot((one.toDouble() * two.toDouble()).toString())
+                    }
+                }
+                while (operations.contains("-") || operations.contains("+")){
+                    for (index in 0 until operations.size){
+                        when(operations[index]){
+                            "-" -> {
+                                valueFinal = numbers[index] - numbers[index+1]
+                                numbers[index] = valueFinal
+                                if (index < operations.size)
+                                    numbers.removeAt(index+1)
+                                operations.removeAt(index)
+                                Log.e("numbers", numbers.toString())
+                            }
+                            "+" -> {
+                                valueFinal = numbers[index] + numbers[index+1]
+                                numbers[index] = valueFinal
+                                if (index < operations.size)
+                                    numbers.removeAt(index+1)
+                                operations.removeAt(index)
+                                Log.e("numbers", numbers.toString())
+                            }
                         }
                         break
                     }
                 }
+                val realFinalNum = removeZeroAfterDot(valueFinal.toString())
+                tvInput.text = realFinalNum
+                numberSting = realFinalNum
+                numbers.clear()
+                lastNumeric = true
+                lastDot = false
+                lastOperation = false
 
             }catch (e:ArithmeticException){
                 e.printStackTrace()
             }
         }
+
     }
+
 
     private fun onOperator(operation: Button){
         if (lastNumeric && !lastOperation){
@@ -202,20 +234,11 @@ class MainActivity : AppCompatActivity(){
         }
     }
 
-
     private fun removeZeroAfterDot(result:String):String{
         return if (result.endsWith(".0"))
              result.substring(0,result.length-2)
         else
             result
-    }
-
-    private fun isOperatorAdded(value:String):Boolean{
-        return if (value.startsWith("-")){
-            false
-        }else{
-            value.contains("/") || value.contains("+") || value.contains("-") || value.contains("*")
-        }
     }
 
 }
