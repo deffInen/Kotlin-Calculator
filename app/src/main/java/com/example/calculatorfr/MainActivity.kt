@@ -155,53 +155,46 @@ class MainActivity : AppCompatActivity(){
                 }
 
                 while (operations.contains("/") || operations.contains("*")){
-                    for (index in 0 until operations.size){
+                    for (index in operations.size-1 downTo 0){
                         if (operations[index] == "/" || operations[index] == "*"){
                             when(operations[index]){
                                 "/" -> {
                                     valueFinal = numbers[index] / numbers[index+1]
                                     numbers[index] = valueFinal
-                                    if (index < operations.size)
-                                        numbers.removeAt(index+1)
+                                    numbers.removeAt(index+1)
                                     operations.removeAt(index)
                                     Log.e("numbers", numbers.toString())
                                 }
                                 "*" -> {
                                     valueFinal = numbers[index] * numbers[index+1]
                                     numbers[index] = valueFinal
-                                    if (index < operations.size)
-                                        numbers.removeAt(index+1)
+                                    numbers.removeAt(index+1)
                                     operations.removeAt(index)
                                     Log.e("numbers", numbers.toString())
                                 }
                             }
-                            break
                         }
                     }
                 }
-                while (operations.contains("-") || operations.contains("+")){
-                    for (index in 0 until operations.size){
-                        when(operations[index]){
-                            "-" -> {
-                                valueFinal = numbers[index] - numbers[index+1]
-                                numbers[index] = valueFinal
-                                if (index < operations.size)
-                                    numbers.removeAt(index+1)
-                                operations.removeAt(index)
-                                Log.e("numbers", numbers.toString())
-                            }
-                            "+" -> {
-                                valueFinal = numbers[index] + numbers[index+1]
-                                numbers[index] = valueFinal
-                                if (index < operations.size)
-                                    numbers.removeAt(index+1)
-                                operations.removeAt(index)
-                                Log.e("numbers", numbers.toString())
-                            }
+                for (index in operations.size-1 downTo 0){
+                    when(operations[index]){
+                        "-" -> {
+                            valueFinal = numbers[index] - numbers[index+1]
+                            numbers[index] = valueFinal
+                            numbers.removeAt(index+1)
+                            operations.removeAt(index)
+                            Log.e("numbers", numbers.toString())
                         }
-                        break
+                        "+" -> {
+                            valueFinal = numbers[index] + numbers[index+1]
+                            numbers[index] = valueFinal
+                            numbers.removeAt(index+1)
+                            operations.removeAt(index)
+                            Log.e("numbers", numbers.toString())
+                        }
                     }
                 }
+
                 val realFinalNum = removeZeroAfterDot(valueFinal.toString())
                 tvInput.text = realFinalNum
                 numberSting = realFinalNum
