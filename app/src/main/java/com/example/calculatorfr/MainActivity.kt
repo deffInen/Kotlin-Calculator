@@ -102,17 +102,26 @@ class MainActivity : AppCompatActivity(){
     private fun onDeleteLast(){
         val input = tvInput.text.toString().substring(0 until tvInput.text.toString().length-1)
         tvInput.text = input
-        if(lastDot && !lastNumeric)
-            lastDot = false
-        if (lastNumeric)
-            lastNumeric = false
-        if (lastOperation)
-            lastOperation = false
+        if (numberSting.isEmpty()){
+            if(numbers.isNotEmpty()){
+                numberSting = removeZeroAfterDot(numbers.last().toString())
+                numbers.removeLast()
+                operations.removeLast()
+                lastOperation = false
+            }
+        }else{
+            numberSting = numberSting.substring(0 until numberSting.length-1)
+        }
+        lastDot = numberSting.contains(".")
+        lastNumeric = numberSting.isNotEmpty()
 
 
         Log.e("lastNumeric", "$lastNumeric")
         Log.e("lastOperation","$lastOperation")
         Log.e("lastDot","$lastDot")
+        Log.e("numberString", numberSting)
+        Log.e("numbers","$numbers")
+        Log.e("operations","$operations")
     }
 
     private fun onDigit(number : Button){
@@ -171,10 +180,11 @@ class MainActivity : AppCompatActivity(){
                                 numbers.removeAt(index+1)
                             operations.removeAt(index)
                             Log.e("numbers", numbers.toString())
+                            break
                         }
-                        break
                     }
                 }
+
                 valueFinal = 0.0
                 numbers.forEach{
                     valueFinal += it
