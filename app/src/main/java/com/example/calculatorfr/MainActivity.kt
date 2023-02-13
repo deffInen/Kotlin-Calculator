@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity(){
     private var lastNumeric = false
     private var lastDot = false
     private var lastOperation = false
+    private var isTvInputEmpty = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,6 +120,7 @@ class MainActivity : AppCompatActivity(){
         numberSting += number.text
         lastNumeric = true
         lastOperation = false
+        isTvInputEmpty = false
     }
 
     private fun onClear(){
@@ -129,6 +131,7 @@ class MainActivity : AppCompatActivity(){
         lastDot = false
         lastNumeric = false
         lastOperation = false
+        isTvInputEmpty = true
     }
 
     private fun onDecimalPoint(){
@@ -143,62 +146,46 @@ class MainActivity : AppCompatActivity(){
     private fun onEqual(){
         if (lastNumeric){
             numbers.add(numberSting.toDouble())
-            var tvValue = tvInput.text.toString()
             var valueFinal : Double = 0.0
-            var prefix = ""
 
             try {
-
-                if (tvValue.startsWith("-")){
-                    prefix = "-"
-                    tvValue = tvValue.substring(1)
-                }
-
-                while (operations.contains("/") || operations.contains("*")){
+                if (operations.contains("*")){
                     for (index in operations.size-1 downTo 0){
-                        if (operations[index] == "/" || operations[index] == "*"){
-                            when(operations[index]){
-                                "/" -> {
-                                    valueFinal = numbers[index] / numbers[index+1]
-                                    numbers[index] = valueFinal
-                                    numbers.removeAt(index+1)
-                                    operations.removeAt(index)
-                                    Log.e("numbers", numbers.toString())
-                                }
-                                "*" -> {
-                                    valueFinal = numbers[index] * numbers[index+1]
-                                    numbers[index] = valueFinal
-                                    numbers.removeAt(index+1)
-                                    operations.removeAt(index)
-                                    Log.e("numbers", numbers.toString())
-                                }
-                            }
+                        if (operations[index] == "*"){
+
+                            valueFinal = numbers[index] * numbers[index+1]
+                            numbers[index] = valueFinal
+                            numbers.removeAt(index+1)
+                            operations.removeAt(index)
+                            Log.e("numbers", numbers.toString())
                         }
                     }
                 }
-                for (index in operations.size-1 downTo 0){
-                    when(operations[index]){
-                        "-" -> {
-                            valueFinal = numbers[index] - numbers[index+1]
+
+                while (operations.contains("/")){
+                    for (index in 0 until operations.size){
+                        if (operations[index] == "/"){
+                            valueFinal = numbers[index] / numbers[index+1]
                             numbers[index] = valueFinal
-                            numbers.removeAt(index+1)
+                            if (index < operations.size)
+                                numbers.removeAt(index+1)
                             operations.removeAt(index)
                             Log.e("numbers", numbers.toString())
                         }
-                        "+" -> {
-                            valueFinal = numbers[index] + numbers[index+1]
-                            numbers[index] = valueFinal
-                            numbers.removeAt(index+1)
-                            operations.removeAt(index)
-                            Log.e("numbers", numbers.toString())
-                        }
+                        break
                     }
+                }
+                valueFinal = 0.0
+                numbers.forEach{
+                    valueFinal += it
+                    Log.e("valueFinal", valueFinal.toString())
                 }
 
                 val realFinalNum = removeZeroAfterDot(valueFinal.toString())
                 tvInput.text = realFinalNum
                 numberSting = realFinalNum
                 numbers.clear()
+                operations.clear()
                 lastNumeric = true
                 lastDot = false
                 lastOperation = false
@@ -207,24 +194,33 @@ class MainActivity : AppCompatActivity(){
                 e.printStackTrace()
             }
         }
-
     }
 
-
     private fun onOperator(operation: Button){
-        if (lastNumeric && !lastOperation){
+        if (isTvInputEmpty && operation.text == "-"){
             tvInput.append(operation.text)
-            operations.add(operation.text.toString())
-            numbers.add(numberSting.toDouble())
-            numberSting = ""
-            lastNumeric = false
-            lastDot = false
-            lastOperation = true
-
-            Log.e("numberString", numberSting)
-            Log.e("numbers","$numbers")
-            Log.e("operations","$operations")
+            numberSting = "-"
+            isTvInputEmpty = false
+        }else{
+            if(lastNumeric && !lastOperation){
+                tvInput.append(operation.text)
+                if (operation.text == "-" || operation.text == "+")
+                    operations.add("+")
+                else
+                    operations.add(operation.text.toString())
+                numbers.add(numberSting.toDouble())
+                lastNumeric = false
+                lastDot = false
+                lastOperation = true
+                numberSting = if (operation.text == "-")
+                    "-"
+                else
+                    ""
+            }
         }
+        Log.e("numberString", numberSting)
+        Log.e("numbers","$numbers")
+        Log.e("operations","$operations")
     }
 
     private fun removeZeroAfterDot(result:String):String{
