@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // this is useless
     private fun removeZeroAfterDot(result:String):String{
         return if (result.endsWith(".0"))
              result.substring(0,result.length-2)
