@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(){
         binding.btnNegate.setOnClickListener{
 
         }
-
+    //x
     }
 
     private fun onDeleteLast(){
